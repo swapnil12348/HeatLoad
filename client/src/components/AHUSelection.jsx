@@ -3,10 +3,14 @@ import { HeatLoadContext } from "../context/HeatLoadContext";
 
 // ── Constants ───────────────────────────────────────────────────────────────
 const ISO_CLASSES = [
-  { value: "ISO 1", label: "ISO 1 (10 particles/m³ @ 0.1µm)" },
+  { value: "ISO 1", label: "ISO 1 (Highest Cleanliness)" },
+  { value: "ISO 2", label: "ISO 2" },
+  { value: "ISO 3", label: "ISO 3 (Class 1)" },
+  { value: "ISO 4", label: "ISO 4 (Class 10)" },
   { value: "ISO 5", label: "ISO 5 (Class 100)" },
+  { value: "ISO 6", label: "ISO 6 (Class 1,000)" },
   { value: "ISO 7", label: "ISO 7 (Class 10,000)" },
-  { value: "ISO 8", label: "ISO 8 (Class 100k)" }, // Most common
+  { value: "ISO 8", label: "ISO 8 (Class 100,000)" }, // Standard pharma/industrial
   { value: "ISO 9", label: "ISO 9 (Room Air)" },
 ];
 
@@ -24,11 +28,9 @@ const CONFIGURATIONS = [
 
 // ── Main Component ──────────────────────────────────────────────────────────
 export default function AHUSelection() {
-  // 1. Use standard context hook
   const { state, dispatch } = useContext(HeatLoadContext);
   
-  // 2. SAFETY CHECK: Access ahus, fallback to empty array if undefined
-  // This supports both 'state.ahus' and 'state.project.ahus' just in case
+  // Safety check: Access ahus from root, fallback to project.ahus or empty array
   const ahus = state.ahus || state.project?.ahus || [];
 
   const addAHU = () => {
@@ -110,46 +112,61 @@ export default function AHUSelection() {
                 />
               </div>
 
-              {/* 2. ISO Class Dropdown */}
+              {/* 2. ISO Class Dropdown (UPDATED) */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">ISO Cleanroom Class</label>
-                <select
-                  value={ahu.isoClass || 'ISO 8'}
-                  onChange={(e) => updateAHU(ahu.id, 'isoClass', e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  {ISO_CLASSES.map((iso) => (
-                    <option key={iso.value} value={iso.value}>{iso.label}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={ahu.isoClass || 'ISO 8'}
+                    onChange={(e) => updateAHU(ahu.id, 'isoClass', e.target.value)}
+                    className="w-full bg-white border border-gray-300 rounded-md p-2.5 pr-8 focus:ring-2 focus:ring-blue-500 outline-none appearance-none"
+                  >
+                    {ISO_CLASSES.map((iso) => (
+                      <option key={iso.value} value={iso.value}>{iso.label}</option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                    <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                  </div>
+                </div>
               </div>
 
               {/* 3. Design Scheme */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">System Design Scheme</label>
-                <select
-                  value={ahu.designScheme || ''}
-                  onChange={(e) => updateAHU(ahu.id, 'designScheme', e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  {DESIGN_SCHEMES.map((scheme) => (
-                    <option key={scheme} value={scheme}>{scheme}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={ahu.designScheme || ''}
+                    onChange={(e) => updateAHU(ahu.id, 'designScheme', e.target.value)}
+                    className="w-full bg-white border border-gray-300 rounded-md p-2.5 pr-8 focus:ring-2 focus:ring-blue-500 outline-none appearance-none"
+                  >
+                    {DESIGN_SCHEMES.map((scheme) => (
+                      <option key={scheme} value={scheme}>{scheme}</option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                    <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                  </div>
+                </div>
               </div>
 
               {/* 4. Configuration */}
               <div>
                 <label className="block text-xs font-bold text-gray-500 uppercase mb-2">Fan Configuration</label>
-                <select
-                  value={ahu.configuration || ''}
-                  onChange={(e) => updateAHU(ahu.id, 'configuration', e.target.value)}
-                  className="w-full bg-white border border-gray-300 rounded-md p-2.5 focus:ring-2 focus:ring-blue-500 outline-none"
-                >
-                  {CONFIGURATIONS.map((config) => (
-                    <option key={config} value={config}>{config}</option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <select
+                    value={ahu.configuration || ''}
+                    onChange={(e) => updateAHU(ahu.id, 'configuration', e.target.value)}
+                    className="w-full bg-white border border-gray-300 rounded-md p-2.5 pr-8 focus:ring-2 focus:ring-blue-500 outline-none appearance-none"
+                  >
+                    {CONFIGURATIONS.map((config) => (
+                      <option key={config} value={config}>{config}</option>
+                    ))}
+                  </select>
+                  <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-gray-500">
+                    <svg className="fill-current h-4 w-4" viewBox="0 0 20 20"><path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z"/></svg>
+                  </div>
+                </div>
               </div>
 
             </div>
