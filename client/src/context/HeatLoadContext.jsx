@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useReducer } from "react";
+import React, { createContext, useContext, useReducer, useEffect } from "react";
 import initialState from "../constants/initialState";
 
 // ── Context ───────────────────────────────────────────────────────────────
@@ -25,7 +25,6 @@ function reducer(state, action) {
       };
 
     // ─── NEW: AHU SELECTION LOGIC ─────────────────────────────────────────
-// ─── AHU SELECTION LOGIC (Safeguarded) ──────────────────────────────
     case "ADD_AHU": {
       const newAHU = {
         id: Date.now(),
@@ -64,7 +63,6 @@ function reducer(state, action) {
         ahus: currentAhus.filter((ahu) => ahu.id !== id),
       };
     }
-    // ────────────────────────────────────────────────────────────────────
     // ──────────────────────────────────────────────────────────────────────
 
     // --- Room Data ---
@@ -157,6 +155,10 @@ function reducer(state, action) {
         infiltration: { ...state.infiltration, ...action.payload },
       };
 
+    // ─── RESET DATA (Use this to clear LocalStorage) ──────────────────────
+    case "RESET_PROJECT":
+      return initialState;
+
     default:
       return state;
   }
@@ -164,8 +166,29 @@ function reducer(state, action) {
 
 // ── Provider ──────────────────────────────────────────────────────────────
 export function HeatLoadProvider({ children }) {
-  // Ensure we are passing the reducer correctly
-  const [state, dispatch] = useReducer(reducer, initialState);
+  
+  // 1. Initialize State from LocalStorage (if available)
+  const init = (defaultState) => {
+    try {
+      const savedData = localStorage.getItem("heatLoadProjectData");
+      return savedData ? JSON.parse(savedData) : defaultState;
+    } catch (error) {
+      console.error("Failed to load state from local storage:", error);
+      return defaultState;
+    }
+  };
+
+  // 2. Use Reducer with the init function
+  const [state, dispatch] = useReducer(reducer, initialState, init);
+
+  // 3. Save State to LocalStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem("heatLoadProjectData", JSON.stringify(state));
+    } catch (error) {
+      console.error("Failed to save state to local storage:", error);
+    }
+  }, [state]);
 
   return (
     <HeatLoadContext.Provider value={{ state, dispatch }}>
