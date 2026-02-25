@@ -1,57 +1,58 @@
-import { useState } from "react";
-import { HeatLoadProvider } from "./context/HeatLoadContext"; // Ensure path is correct
+import React from 'react';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 
-// Components
-import Header                  from "./components/Header";
-import ProjectInfo             from "./components/ProjectInfo";
-import TabNav                  from "./components/TabNav";
-import RoomData                from "./components/RoomData";
-import ClimateConditions       from "./components/ClimateConditions";
-import HeatGainLoss            from "./components/HeatGainLoss";
-import InfiltrationExfiltration from "./components/InfiltrationExfiltration";
-import ResultsSummary          from "./components/ResultsSummary";
-import AHUSelection            from "./components/AHUSelection"; // <--- 1. Import it
+// Context Provider
+import { HeatLoadProvider } from './context/HeatLoadContext';
 
-export default function App() {
-  // You can change "room" to "ahu" if you want that to be the homepage
-  const [activeTab, setActiveTab] = useState("room"); 
+// Layout Components
+import Header from './components/Header';
+import TabNav from './components/TabNav';
 
+// Page Components
+import ProjectInfo from './components/ProjectInfo';
+import AHUSelection from './components/AHUSelection';
+import ClimateConditions from './components/ClimateConditions';
+import RoomData from './components/RoomData';
+import InfiltrationExfiltration from './components/InfiltrationExfiltration';
+import HeatGainLoss from './components/HeatGainLoss';
+import ResultsSummary from './components/ResultsSummary';
+
+function App() {
   return (
     <HeatLoadProvider>
-      <div className="min-h-screen bg-slate-100 font-sans text-slate-800 pb-20">
-        <Header />
-
-        <div className="max-w-[1400px] mx-auto py-5 px-4">
+      <BrowserRouter>
+        <div className="min-h-screen bg-gray-50 text-gray-900 font-sans">
           
-          {/* Note: ProjectInfo is currently shown on ALL tabs. 
-              If you want it to be its own tab, move it inside the conditional logic below. */}
-          <ProjectInfo />
+          {/* Top Header */}
+          <Header />
 
-          {/* Pass the setter to TabNav so buttons can change the view */}
-          <TabNav activeTab={activeTab} onSelect={setActiveTab} />
+          {/* Navigation Tabs */}
+          <TabNav />
 
-          <div className="mt-6 flex flex-col gap-5">
-            
-            {/* ─── 2. Add the Logic Here ─── */}
-            {activeTab === "ahu"          && <AHUSelection />} 
-            
-            {activeTab === "room"         && <RoomData />}
-            {activeTab === "climate"      && <ClimateConditions />}
-            {activeTab === "heat"         && <HeatGainLoss />}
-            {activeTab === "infiltration" && <InfiltrationExfiltration />}
-            {activeTab === "results"      && <ResultsSummary />}
-          </div>
+          {/* Main Content Area */}
+          <main className="container mx-auto px-4 py-6">
+            <Routes>
+              {/* Redirect root "/" to the first step */}
+              <Route path="/" element={<Navigate to="/project-info" replace />} />
 
-          {/* Footer */}
-          <div className="mt-12 p-4 bg-white border border-slate-200 rounded-lg shadow-sm text-xs text-slate-500 text-center">
-            <p className="font-semibold text-slate-700 mb-1">
-              ASHRAE Handbook — Fundamentals (2021) | ASHRAE 55-2020 | ASHRAE 62.1-2022 | ASHRAE 90.1-2022
-            </p>
-            All calculations for preliminary design purposes only.
-            Final design must be verified by a licensed mechanical engineer.
-          </div>
+              {/* Define Routes for each step */}
+              <Route path="/project-info" element={<ProjectInfo />} />
+              <Route path="/ahu-selection" element={<AHUSelection />} />
+              <Route path="/climate" element={<ClimateConditions />} />
+              <Route path="/room-data" element={<RoomData />} />
+              <Route path="/infiltration" element={<InfiltrationExfiltration />} />
+              <Route path="/heat-gain" element={<HeatGainLoss />} />
+              <Route path="/results" element={<ResultsSummary />} />
+
+              {/* Catch-all for 404s */}
+              <Route path="*" element={<div className="p-10 text-center">Page Not Found</div>} />
+            </Routes>
+          </main>
+          
         </div>
-      </div>
+      </BrowserRouter>
     </HeatLoadProvider>
   );
 }
+
+export default App;

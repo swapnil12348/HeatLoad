@@ -1,50 +1,40 @@
+import React from 'react';
+import { NavLink } from 'react-router-dom';
 
+export default function TabNav() {
+  
+  // Define your tabs and their paths here
+  const tabs = [
+    { name: 'Project Info', path: '/project-info' },
+    { name: 'AHU Selection', path: '/ahu-selection' },
+    { name: 'Climate Conditions', path: '/climate' },
+    { name: 'Room & Ventilation', path: '/room-data' },
+    { name: 'Infiltration', path: '/infiltration' },
+    { name: 'Heat Gain Calc', path: '/heat-gain' },
+    { name: 'Results', path: '/results' },
+  ];
 
-export const TABS = [
-  { id: "project",      label: "Project Info" }, // Added this so you can go back to the first screen
-  { id: "ahu",          label: "AHU Selection" }, // <--- FIXED THIS LINE
-  { id: "room",         label: "Room & Ventilation" },
-  { id: "climate",      label: "1. Climate Conditions" },
-  { id: "heat",         label: "2. Heat Gain / Loss" },
-  { id: "infiltration", label: "3. Infiltration" },
-  { id: "results",      label: "4. Results & Selection" },
-];
-
-/**
- * TabNav
- * Pill-style tab bar for navigating between calculator sections.
- */
-export default function TabNav({ activeTab, onSelect }) {
   return (
-    <div style={{
-      display: "flex", gap: 6, marginBottom: 20,
-      background: "#f1f5f9", borderRadius: 12, padding: 6,
-      overflowX: "auto", border: "1px solid #e2e8f0"
-    }}>
-      {TABS.map((tab) => {
-        const active = activeTab === tab.id;
-        return (
-          <button
-            key={tab.id}
-            onClick={() => onSelect(tab.id)}
-            style={{
-              padding: "10px 18px",
-              fontSize: 13,
-              fontWeight: active ? 600 : 500,
-              border: "none",
-              borderRadius: 8,
-              cursor: "pointer",
-              whiteSpace: "nowrap",
-              background: active ? "#ffffff" : "transparent",
-              color: active ? "#1d4ed8" : "#64748b", // Blue text when active
-              boxShadow: active ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
-              transition: "all 0.2s ease",
-            }}
-          >
-            {tab.label}
-          </button>
-        );
-      })}
+    <div className="bg-white border-b border-gray-200 sticky top-0 z-10 shadow-sm">
+      <div className="container mx-auto px-4">
+        <nav className="flex space-x-1 md:space-x-4 overflow-x-auto no-scrollbar" aria-label="Tabs">
+          {tabs.map((tab) => (
+            <NavLink
+              key={tab.name}
+              to={tab.path}
+              className={({ isActive }) =>
+                `whitespace-nowrap py-4 px-3 border-b-2 font-medium text-sm transition-colors duration-200 ${
+                  isActive
+                    ? 'border-blue-600 text-blue-600' // Active Styles
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300' // Inactive Styles
+                }`
+              }
+            >
+              {tab.name}
+            </NavLink>
+          ))}
+        </nav>
+      </div>
     </div>
   );
 }
