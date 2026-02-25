@@ -3,8 +3,11 @@ import { useHeatLoad } from "../context/HeatLoadContext";
 
 // ── Sub-Component: Number Control (Styled for Engineering) ──────────────────
 const NumberControl = ({ label, value, onChange, unit = "" }) => {
-  const handleIncrement = () => onChange(parseFloat(value) + 1);
-  const handleDecrement = () => onChange(parseFloat(value) - 1);
+  // Safe parsing to prevent NaN errors
+  const safeVal = (v) => parseFloat(v) || 0;
+
+  const handleIncrement = () => onChange(safeVal(value) + 1);
+  const handleDecrement = () => onChange(safeVal(value) - 1);
   const handleChange = (e) => onChange(e.target.value);
 
   return (
@@ -40,7 +43,7 @@ const NumberControl = ({ label, value, onChange, unit = "" }) => {
         <button
           type="button"
           onClick={handleIncrement}
-          className="px-3 py-2 bg-gray-50 text-gray-600 hover:bg-gray-200 active:bg-gray-300 transition-colors"
+          className="px-3 py-2 bg-gray-50 text-gray-600 hover:bg-gray-200 active:bg-gray-300 border-l border-gray-300 transition-colors"
         >
           +
         </button>
@@ -70,6 +73,7 @@ export default function ProjectInfo() {
   const { project } = state;
   const { ambient } = project;
 
+  // 1. Handle Text Inputs
   const handleTextChange = (e) => {
     dispatch({ 
       type: "UPDATE_PROJECT", 
@@ -77,6 +81,7 @@ export default function ProjectInfo() {
     });
   };
 
+  // 2. Handle Numeric Inputs
   const handleAmbientChange = (field, value) => {
     dispatch({ 
       type: "UPDATE_AMBIENT", 
@@ -84,15 +89,38 @@ export default function ProjectInfo() {
     });
   };
 
+  // 3. Handle Reset Logic
+  const handleReset = () => {
+    if (window.confirm("⚠️ Are you sure you want to clear ALL project data? This cannot be undone.")) {
+      // Clear Local Storage
+      localStorage.removeItem("heatLoadProjectData");
+      // Reset State
+      dispatch({ type: "RESET_PROJECT" });
+      // Optional: Force reload to ensure a clean slate
+      window.location.reload();
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-4 md:p-8">
       
-      {/* ── Page Header ── */}
-      <div className="mb-8 border-b border-gray-200 pb-4">
-        <h2 className="text-3xl font-bold text-gray-900">Project Definition</h2>
-        <p className="text-gray-500 mt-2 text-base">
-          Manage project details, client information, and environmental design criteria.
-        </p>
+      {/* ── Page Header & Reset Button ── */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-end mb-8 border-b border-gray-200 pb-4 gap-4">
+        <div>
+          <h2 className="text-3xl font-bold text-gray-900">Project Definition</h2>
+          <p className="text-gray-500 mt-2 text-base">
+            Manage project details, client information, and environmental design criteria.
+          </p>
+        </div>
+        
+        {/* RESET BUTTON */}
+        <button
+          onClick={handleReset}
+          className="flex items-center gap-2 px-4 py-2 bg-white border border-red-200 text-red-600 rounded-lg hover:bg-red-50 hover:border-red-300 transition-all text-sm font-semibold shadow-sm"
+        >
+          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" /></svg>
+          Reset Project
+        </button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
