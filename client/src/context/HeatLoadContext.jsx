@@ -10,15 +10,12 @@ function reducer(state, action) {
 
     // --- Project Info ---
     case "UPDATE_PROJECT":
-      // Updates top-level project fields (Name, Client, Industry, etc.)
       return {
         ...state,
         project: { ...state.project, ...action.payload },
       };
 
-    // --- Ambient Conditions ---
     case "UPDATE_AMBIENT":
-      // Updates nested ambient fields (Elevation, Temp, etc.) safely
       return {
         ...state,
         project: {
@@ -26,6 +23,49 @@ function reducer(state, action) {
           ambient: { ...state.project.ambient, ...action.payload },
         },
       };
+
+    // ─── NEW: AHU SELECTION LOGIC ─────────────────────────────────────────
+// ─── AHU SELECTION LOGIC (Safeguarded) ──────────────────────────────
+    case "ADD_AHU": {
+      const newAHU = {
+        id: Date.now(),
+        roomName: "",
+        isoClass: "ISO 8",
+        designScheme: "Conventional Pharma Ducting",
+        configuration: "Draw-through"
+      };
+      return {
+        ...state,
+        // Fallback to [] if undefined
+        ahus: [...(state.ahus || []), newAHU], 
+      };
+    }
+
+    case "UPDATE_AHU": {
+      const { id, field, value } = action.payload;
+      // Safety check
+      const currentAhus = state.ahus || []; 
+      
+      return {
+        ...state,
+        ahus: currentAhus.map((ahu) =>
+          ahu.id === id ? { ...ahu, [field]: value } : ahu
+        ),
+      };
+    }
+
+    case "DELETE_AHU": {
+      const { id } = action.payload;
+      // Safety check
+      const currentAhus = state.ahus || [];
+
+      return {
+        ...state,
+        ahus: currentAhus.filter((ahu) => ahu.id !== id),
+      };
+    }
+    // ────────────────────────────────────────────────────────────────────
+    // ──────────────────────────────────────────────────────────────────────
 
     // --- Room Data ---
     case "UPDATE_ROOM":
@@ -38,7 +78,6 @@ function reducer(state, action) {
     case "UPDATE_CLIMATE": {
       const { type, season, field, value, data } = action.payload;
       
-      // Handle Inside Conditions
       if (type === "inside") {
         return {
           ...state,
@@ -49,7 +88,6 @@ function reducer(state, action) {
         };
       }
       
-      // Handle Outside Conditions
       if (type === "outside" && season && state.climate.outside[season]) {
         return {
           ...state,
@@ -126,31 +164,11 @@ function reducer(state, action) {
 
 // ── Provider ──────────────────────────────────────────────────────────────
 export function HeatLoadProvider({ children }) {
+  // Ensure we are passing the reducer correctly
   const [state, dispatch] = useReducer(reducer, initialState);
 
-  // Helper: Update top-level project text fields
-  const updateProjectField = (field, value) => {
-    dispatch({ type: "UPDATE_PROJECT", payload: { [field]: value } });
-  };
-
-  // Helper: Update nested ambient number fields
-  const updateAmbientField = (field, value) => {
-    // Ensure value is stored as a number for calculations
-    dispatch({ 
-      type: "UPDATE_AMBIENT", 
-      payload: { [field]: parseFloat(value) || 0 } 
-    });
-  };
-
   return (
-    <HeatLoadContext.Provider 
-      value={{ 
-        state, 
-        dispatch, 
-        updateProjectField, 
-        updateAmbientField 
-      }}
-    >
+    <HeatLoadContext.Provider value={{ state, dispatch }}>
       {children}
     </HeatLoadContext.Provider>
   );

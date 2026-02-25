@@ -1,6 +1,8 @@
-import { COLOR } from "../constants/styles";
+
 
 export const TABS = [
+  { id: "project",      label: "Project Info" }, // Added this so you can go back to the first screen
+  { id: "ahu",          label: "AHU Selection" }, // <--- FIXED THIS LINE
   { id: "room",         label: "Room & Ventilation" },
   { id: "climate",      label: "1. Climate Conditions" },
   { id: "heat",         label: "2. Heat Gain / Loss" },
@@ -11,16 +13,13 @@ export const TABS = [
 /**
  * TabNav
  * Pill-style tab bar for navigating between calculator sections.
- *
- * @param {string}   activeTab  - Currently active tab id
- * @param {function} onSelect   - Callback receiving the selected tab id
  */
 export default function TabNav({ activeTab, onSelect }) {
   return (
     <div style={{
-      display: "flex", gap: 2, marginBottom: 20,
-      background: "#e2e8f0", borderRadius: 10, padding: 4,
-      overflowX: "auto",
+      display: "flex", gap: 6, marginBottom: 20,
+      background: "#f1f5f9", borderRadius: 12, padding: 6,
+      overflowX: "auto", border: "1px solid #e2e8f0"
     }}>
       {TABS.map((tab) => {
         const active = activeTab === tab.id;
@@ -29,17 +28,17 @@ export default function TabNav({ activeTab, onSelect }) {
             key={tab.id}
             onClick={() => onSelect(tab.id)}
             style={{
-              padding: "9px 16px",
-              fontSize: 12,
-              fontWeight: active ? 700 : 500,
+              padding: "10px 18px",
+              fontSize: 13,
+              fontWeight: active ? 600 : 500,
               border: "none",
-              borderRadius: 7,
+              borderRadius: 8,
               cursor: "pointer",
               whiteSpace: "nowrap",
-              background: active ? "#fff" : "transparent",
-              color: active ? COLOR.brandMid : "#64748b",
-              boxShadow: active ? "0 1px 4px rgba(0,0,0,0.10)" : "none",
-              transition: "all 0.15s",
+              background: active ? "#ffffff" : "transparent",
+              color: active ? "#1d4ed8" : "#64748b", // Blue text when active
+              boxShadow: active ? "0 1px 3px rgba(0,0,0,0.1)" : "none",
+              transition: "all 0.2s ease",
             }}
           >
             {tab.label}

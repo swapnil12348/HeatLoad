@@ -3,11 +3,11 @@ import ASHRAE from "./ashrae";
 const initialState = {
   // ── Project Metadata ─────────────────────────────────────────────────────
   project: {
-    projectName: "", // Changed from projectId to standard name for UI
+    projectName: "", 
     projectLocation: "",
     customerName: "",
     consultantName: "",
-    industry: "Semiconductor", // Default selection
+    industry: "Semiconductor", 
     keyAccountManager: "",
     
     // Ambient Conditions for Calculations
@@ -17,8 +17,22 @@ const initialState = {
       wetBulbTemp: 24,   // °C
       latitude: 0,       // Degrees
       relativeHumidity: 50 // %
-    }
+    },
+    
+    // ❌ REMOVED 'ahus' from here. 
+    // It must be at the root level to work with your Reducer.
   },
+
+  // ✅ MOVED 'ahus' TO ROOT LEVEL
+  ahus: [
+    {
+      id: 1, // Start with one default AHU
+      roomName: "",
+      isoClass: "ISO 8",
+      designScheme: "Conventional Pharma Ducting",
+      configuration: "Draw-through"
+    }
+  ],
 
   // ── Room / Zone Data ─────────────────────────────────────────────────────
   room: {
@@ -41,15 +55,13 @@ const initialState = {
   },
 
   // ── Building Envelope Elements ───────────────────────────────────────────
-  // All elements are Arrays [] to allow multiple walls/windows per room.
   elements: {
     glass: [
       {
         id: 1,
         label: "North Window",
         area: 40,
-        uValue: 0.85, // Single pane
-        // Solar Cooling Load (SCL) or CLTD
+        uValue: 0.85, 
         diff: { summer: 35, monsoon: 30, winter: 10 }, 
       },
     ],
@@ -58,8 +70,7 @@ const initialState = {
         id: 2,
         label: "North Wall",
         area: 120,
-        uValue: 0.35, // Brick 9"
-        // Cooling Load Temperature Difference (CLTD)
+        uValue: 0.35, 
         diff: { summer: 25, monsoon: 20, winter: 40 },
       },
     ],
@@ -72,9 +83,9 @@ const initialState = {
         diff: { summer: 45, monsoon: 35, winter: 20 },
       }
     ],
-    ceiling: [], // Empty by default
-    floor: [],   // Empty by default
-    partitions: [], // For walls next to non-AC rooms
+    ceiling: [], 
+    floor: [],   
+    partitions: [], 
   },
 
   // ── Internal Heat Gains ──────────────────────────────────────────────────
