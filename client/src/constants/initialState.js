@@ -43,6 +43,13 @@ const initialState = {
     minFA: 0,       // Calculated later
   },
 
+  systemDesign: {
+    safetyFactor: ASHRAE?.DEFAULT_SAFETY_FACTOR_PCT || 10,
+    bypassFactor: ASHRAE?.DEFAULT_BYPASS_FACTOR || 0.10,
+    adp:          ASHRAE?.DEFAULT_ADP || 50, // Apparatus Dew Point
+    fanHeat:      ASHRAE?.DEFAULT_FAN_HEAT_PCT || 5,
+  },
+
   // ── Climate Design Conditions ────────────────────────────────────────────
   climate: {
     outside: {
