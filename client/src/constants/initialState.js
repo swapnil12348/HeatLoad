@@ -3,9 +3,21 @@ import ASHRAE from "./ashrae";
 const initialState = {
   // ── Project Metadata ─────────────────────────────────────────────────────
   project: {
-    client: "Client Name",
-    jobRefNo: "JOB-001",
-    date: new Date().toISOString().split("T")[0],
+    projectName: "", // Changed from projectId to standard name for UI
+    projectLocation: "",
+    customerName: "",
+    consultantName: "",
+    industry: "Semiconductor", // Default selection
+    keyAccountManager: "",
+    
+    // Ambient Conditions for Calculations
+    ambient: {
+      elevation: 0,      // ft or m
+      dryBulbTemp: 35,   // °C
+      wetBulbTemp: 24,   // °C
+      latitude: 0,       // Degrees
+      relativeHumidity: 50 // %
+    }
   },
 
   // ── Room / Zone Data ─────────────────────────────────────────────────────
@@ -29,8 +41,7 @@ const initialState = {
   },
 
   // ── Building Envelope Elements ───────────────────────────────────────────
-  // CORRECTION: All elements are now Arrays []. 
-  // This allows the Math Hook to loop through them consistently.
+  // All elements are Arrays [] to allow multiple walls/windows per room.
   elements: {
     glass: [
       {

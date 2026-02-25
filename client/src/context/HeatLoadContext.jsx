@@ -1,4 +1,4 @@
-import { createContext, useContext, useReducer } from "react";
+import React, { createContext, useContext, useReducer } from "react";
 import initialState from "../constants/initialState";
 
 // ── Context ───────────────────────────────────────────────────────────────
@@ -8,37 +8,49 @@ export const HeatLoadContext = createContext(null);
 function reducer(state, action) {
   switch (action.type) {
 
-    // --- Project & Room Info ---
+    // --- Project Info ---
     case "UPDATE_PROJECT":
+      // Updates top-level project fields (Name, Client, Industry, etc.)
       return {
         ...state,
         project: { ...state.project, ...action.payload },
       };
 
+    // --- Ambient Conditions ---
+    case "UPDATE_AMBIENT":
+      // Updates nested ambient fields (Elevation, Temp, etc.) safely
+      return {
+        ...state,
+        project: {
+          ...state.project,
+          ambient: { ...state.project.ambient, ...action.payload },
+        },
+      };
+
+    // --- Room Data ---
     case "UPDATE_ROOM":
       return {
         ...state,
         room: { ...state.room, ...action.payload },
       };
 
-    // --- Climate Data ---
+    // --- Climate Data (Design Conditions) ---
     case "UPDATE_CLIMATE": {
-      const { type, season, field, data, value } = action.payload;
+      const { type, season, field, value, data } = action.payload;
       
-      // Handle Inside Conditions (Simple Object Update)
+      // Handle Inside Conditions
       if (type === "inside") {
         return {
           ...state,
           climate: {
             ...state.climate,
-            inside: { ...state.climate.inside, ...data }, // Expects data object { field: value }
+            inside: { ...state.climate.inside, ...data },
           },
         };
       }
       
-      // Handle Outside Conditions (Nested by Season)
-      // Guard clause: Ensure season exists before trying to update it
-      if (season && state.climate.outside[season]) {
+      // Handle Outside Conditions
+      if (type === "outside" && season && state.climate.outside[season]) {
         return {
           ...state,
           climate: {
@@ -50,8 +62,6 @@ function reducer(state, action) {
           },
         };
       }
-      
-      console.warn("Invalid Climate Update Payload:", action.payload);
       return state;
     }
 
@@ -62,7 +72,6 @@ function reducer(state, action) {
         ...state,
         elements: {
           ...state.elements,
-          // Ensure we are spreading an array, fallback to empty array if undefined
           [category]: [...(state.elements[category] || []), newItem],
         },
       };
@@ -81,7 +90,6 @@ function reducer(state, action) {
       };
     }
 
-    // ★ NEW: Missing Delete Functionality
     case "DELETE_ELEMENT_ROW": {
       const { category, id } = action.payload;
       return {
@@ -89,19 +97,6 @@ function reducer(state, action) {
         elements: {
           ...state.elements,
           [category]: state.elements[category].filter((item) => item.id !== id),
-        },
-      };
-    }
-
-    // ★ WARNING: Only use this for categories that are OBJECTS, not ARRAYS.
-    // If you use this on 'walls' (which is an array), the app will crash.
-    case "UPDATE_SINGLE_ELEMENT": {
-      const { category, field, value } = action.payload;
-      return {
-        ...state,
-        elements: {
-          ...state.elements,
-          [category]: { ...state.elements[category], [field]: value },
         },
       };
     }
@@ -132,12 +127,30 @@ function reducer(state, action) {
 // ── Provider ──────────────────────────────────────────────────────────────
 export function HeatLoadProvider({ children }) {
   const [state, dispatch] = useReducer(reducer, initialState);
-  
-  // Debugging: Log state changes to console (optional, helpful for dev)
-  // console.log("Current State:", state);
+
+  // Helper: Update top-level project text fields
+  const updateProjectField = (field, value) => {
+    dispatch({ type: "UPDATE_PROJECT", payload: { [field]: value } });
+  };
+
+  // Helper: Update nested ambient number fields
+  const updateAmbientField = (field, value) => {
+    // Ensure value is stored as a number for calculations
+    dispatch({ 
+      type: "UPDATE_AMBIENT", 
+      payload: { [field]: parseFloat(value) || 0 } 
+    });
+  };
 
   return (
-    <HeatLoadContext.Provider value={{ state, dispatch }}>
+    <HeatLoadContext.Provider 
+      value={{ 
+        state, 
+        dispatch, 
+        updateProjectField, 
+        updateAmbientField 
+      }}
+    >
       {children}
     </HeatLoadContext.Provider>
   );
